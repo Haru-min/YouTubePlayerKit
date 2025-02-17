@@ -56,7 +56,7 @@ public final class YouTubePlayer: ObservableObject {
     private(set) lazy var autoplayBlockedSubject = PassthroughSubject<Void, Never>()
     
     /// The YouTubePlayer WebView
-    private(set) lazy var webView: YouTubePlayerWebView = {
+    public private(set) lazy var webView: YouTubePlayerWebView = {
         // Initialize a YouTubePlayerWebView
         let webView = YouTubePlayerWebView(player: self)
         // Subscribe to YouTubePlayerWebView Event Subject
