@@ -29,6 +29,16 @@
         ::-webkit-scrollbar {
             display: none !important;
         }
+        
+        /* YouTube 요소를 숨기는 스타일 추가 */
+        .ytp-chrome-top,
+        .ytp-endscreen-content,
+        .ytp-gradient-top,
+        .ytp-gradient-bottom,
+        .ytp-endscreen-previous,
+        .ytp-endscreen-next {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -61,6 +71,7 @@
             );
             // Send onIframeAPIReady event
             sendYouTubePlayerEvent('onIframeAPIReady');
+            setTimeout(injectYouTubeCSS, 1000);
         });
 
         // Set YouTubePlayer Size
@@ -119,6 +130,32 @@
             // Send onAutoplayBlocked event
             sendYouTubePlayerEvent('onAutoplayBlocked');
         }
+        
+        // CSS 주입을 위한 새로운 함수 추가
+                function injectYouTubeCSS() {
+                    var player = document.getElementById("player");
+                    player.contentWindow.postMessage(
+                        JSON.stringify({
+                            event: "command",
+                            func: "addCss",
+                            args: [
+                                `
+                                .ytp-chrome-top,
+                                .ytp-endscreen-content,
+                                .ytp-endscreen-previous,
+                                .ytp-endscreen-next {
+                                    display: none !important;
+                                }
+                                `
+                            ]
+                        }),
+                        "*"
+                    );
+                }
+                
+                window.onload = function() {
+                    setTimeout(injectYouTubeCSS, 2000);
+                };
     </script>
 </body>
 

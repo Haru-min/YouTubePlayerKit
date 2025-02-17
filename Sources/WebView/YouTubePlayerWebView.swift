@@ -4,40 +4,8 @@ import WebKit
 
 // MARK: - YouTubePlayerWebView
 
-extension YouTubePlayerWebView {
-    func injectCustomStyles() {
-        let script = """
-               var style = document.createElement('style');
-               style.innerHTML = `
-                   .ytp-chrome-top,
-                   .ytp-endscreen-content,
-                   .ytp-endscreen-previous,
-                   .ytp-endscreen-next,
-                   .ytp-large-play-button {
-                       display: none !important;
-                   }
-               `;
-               document.head.appendChild(style);
-           """
-        
-        self.evaluateJavaScript(script, completionHandler: { result, error in
-            if let error = error {
-                print("JavaScript Injection Error: \(error.localizedDescription)")
-            } else {
-                print("Custom Styles Injected Successfully")
-            }
-        })
-    }
-}
-
-extension YouTubePlayer {
-    func injectCustomStyles() {
-        self.webView.injectCustomStyles()
-    }
-}
-
 /// The YouTubePlayer WebView
-public final class YouTubePlayerWebView: WKWebView {
+open class YouTubePlayerWebView: WKWebView {
     
     // MARK: Properties
     
@@ -75,6 +43,30 @@ public final class YouTubePlayerWebView: WKWebView {
             configuration: {
                 // Initialize WebView Configuration
                 let configuration = WKWebViewConfiguration()
+                
+                let contentController = WKUserContentController()
+                let hideElementsScript = """
+                              var style = document.createElement('style');
+                              style.innerHTML = `
+                                  .ytp-chrome-top,
+                                  .ytp-endscreen-content,
+                                  .ytp-gradient-top,
+                                  .ytp-gradient-bottom,
+                                  .ytp-endscreen-previous,
+                                  .ytp-endscreen-next {
+                                      display: none !important;
+                                  }
+                              `;
+                              document.head.appendChild(style);
+                          """
+                let userScript = WKUserScript(
+                    source: hideElementsScript,
+                    injectionTime: .atDocumentEnd,
+                    forMainFrameOnly: true
+                )
+                contentController.addUserScript(userScript)
+                configuration.userContentController = contentController
+                
                 #if !os(macOS)
                 // Allows inline media playback
                 configuration.allowsInlineMediaPlayback = true
@@ -98,7 +90,7 @@ public final class YouTubePlayerWebView: WKWebView {
     /// Initializer with NSCoder is unavailable.
     /// Use `init(player:)`
     @available(*, unavailable)
-    required init?(
+    required public init?(
         coder aDecoder: NSCoder
     ) { nil }
     
