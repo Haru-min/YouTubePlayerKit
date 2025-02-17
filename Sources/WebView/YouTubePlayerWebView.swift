@@ -4,6 +4,38 @@ import WebKit
 
 // MARK: - YouTubePlayerWebView
 
+extension YouTubePlayerWebView {
+    func injectCustomStyles() {
+        let script = """
+               var style = document.createElement('style');
+               style.innerHTML = `
+                   .ytp-chrome-top,
+                   .ytp-endscreen-content,
+                   .ytp-endscreen-previous,
+                   .ytp-endscreen-next,
+                   .ytp-large-play-button {
+                       display: none !important;
+                   }
+               `;
+               document.head.appendChild(style);
+           """
+        
+        self.evaluateJavaScript(script, completionHandler: { result, error in
+            if let error = error {
+                print("JavaScript Injection Error: \(error.localizedDescription)")
+            } else {
+                print("Custom Styles Injected Successfully")
+            }
+        })
+    }
+}
+
+extension YouTubePlayer {
+    func injectCustomStyles() {
+        self.webView.injectCustomStyles()
+    }
+}
+
 /// The YouTubePlayer WebView
 public final class YouTubePlayerWebView: WKWebView {
     
